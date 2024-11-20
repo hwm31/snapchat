@@ -1,6 +1,4 @@
-'use client'; 
-
-// src/components/layout/Navigation.tsx
+'use client';
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -9,16 +7,21 @@ export default function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
 
+  console.log('Current pathname:', pathname);
+
   const navigation = [
-    { name: '홈', href: '/' },
-    { name: '농가 목록', href: '/farms' },
-    { name: '상품 목록', href: '/products' },
-    { name: '유통 경로', href: '/distribution' },
-    { name: '추천 농가', href: '/recommendations' },
+    { name: '홈', href: '/home' },
+    { name: '채팅', href: '/chat' },
+    { name: '스토리', href: '/story' },
+    { name: '프로필', href: '/profile' }
   ];
 
   const isCurrentPath = (path: string) => {
-    return pathname === path;
+    return pathname.startsWith(path);
+  };
+
+  const handleLinkClick = () => {
+    setIsMobileMenuOpen(false);
   };
 
   return (
@@ -41,7 +44,6 @@ export default function Navigation() {
               </Link>
             ))}
           </div>
-
           {/* 모바일 메뉴 버튼 */}
           <div className="md:hidden">
             <button
@@ -83,7 +85,6 @@ export default function Navigation() {
           </div>
         </div>
       </div>
-
       {/* 모바일 메뉴 */}
       <div className={`${isMobileMenuOpen ? 'block' : 'hidden'} md:hidden`}>
         <div className="pt-2 pb-3 space-y-1">
@@ -91,6 +92,7 @@ export default function Navigation() {
             <Link
               key={item.name}
               href={item.href}
+              onClick={handleLinkClick}
               className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
                 isCurrentPath(item.href)
                   ? 'bg-green-50 border-green-500 text-green-700'
