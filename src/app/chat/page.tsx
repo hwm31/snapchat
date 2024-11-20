@@ -1,75 +1,72 @@
 'use client';
-export const dynamic = 'force-dynamic';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation'; // Changed from next/router
 import axios from 'axios';
-import Image from 'next/image';
 
-interface Chat {
-  id: number;
-  message: string;
-  roomId: string;
+interface ChatList {
+  name: string;
+  chat: string;
+  chat_time: string;
 }
 
-const ChatScreen: React.FC = () => {
-  const router = useRouter();
-  const [chats, setChats] = useState<Chat[]>([]);
+export default function ChatPage() {
+  const [chatList, setChatList] = useState<ChatList[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     axios
-      .get('/api/chats')
+      .post('http://127.0.0.1:5000/chatlist', { cust_id: 1 })
       .then((response) => {
-        setChats(response.data);
+        const chatData = response.data.chat.map((_: any, index: number) => ({
+          name: response.data.name[index],
+          chat: response.data.chat[index],
+          chat_time: response.data.chat_time[index],
+        }));
+        console.log('Formatted Data:', chatData);
+        setChatList(chatData);
         setLoading(false);
       })
-      .catch((error) => {
-        console.error('Error fetching chats:', error);
+      .catch((err) => {
+        console.error('API Error:', err);
+        setError('데이터를 가져오는 중 오류가 발생했습니다.');
         setLoading(false);
       });
   }, []);
 
-  const navigateToChatRoom = (roomId: string) => {
-    router.push(`/chat/${roomId}`); // This will work with next/navigation
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <p>로딩 중...</p>
       </div>
     );
   }
 
+  if (error) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <p>{error}</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex flex-col">
-      <header className="bg-yellow-400 text-black px-4 py-3">
-        <h1 className="text-2xl font-bold">채팅</h1>
-      </header>
-      <ul className="flex-grow overflow-y-auto">
-        {chats.map((chat) => (
+    <div className="min-h-screen bg-black text-white p-4">
+      <h1 className="text-2xl font-bold mb-4">채팅 리스트</h1>
+      <ul>
+        {chatList.map((chat, index) => (
           <li
-            key={chat.id}
-            className="flex items-center px-4 py-3 hover:bg-gray-800 transition-colors cursor-pointer"
-            onClick={() => navigateToChatRoom(chat.roomId)}
+            key={index}
+            className="border-b border-gray-700 py-4 flex justify-between"
           >
-            <Image
-              src={`/images/user-${chat.id}.png`}
-              alt={`${chat.id} avatar`}
-              width={48}
-              height={48}
-              className="rounded-full mr-4"
-            />
-            <div className="flex-grow">
-              <h2 className="text-lg font-semibold">{`Room ${chat.roomId}`}</h2>
-              <p className="text-sm text-gray-400 truncate">{chat.message}</p>
+            <div>
+              <p className="font-semibold">{chat.name}</p>
+              <p className="text-gray-400">{chat.chat}</p>
             </div>
+            <span className="text-sm text-gray-500">{chat.chat_time}</span>
           </li>
         ))}
       </ul>
     </div>
   );
-};
-
-export default ChatScreen;
+}
