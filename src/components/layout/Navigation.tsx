@@ -9,11 +9,14 @@ export default function Navigation() {
 
   console.log('Current pathname:', pathname);
 
+  // 네비게이션 항목 업데이트 (로그인/회원가입 추가)
   const navigation = [
     { name: '홈', href: '/home' },
     { name: '채팅', href: '/chat' },
     { name: '스토리', href: '/story' },
-    { name: '프로필', href: '/profile' }
+    { name: '프로필', href: '/profile' },
+    { name: '로그인', href: '/login' }, // 로그인 추가
+    { name: '회원가입', href: '/register' }, // 회원가입 추가
   ];
 
   const isCurrentPath = (path: string) => {
