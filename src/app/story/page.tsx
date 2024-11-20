@@ -32,6 +32,20 @@ const friends = [
   { user_id: 3, name: 'User 3', avatar: "https://example.com/user3.jpg" },
   { user_id: 4, name: 'User 4', avatar: "https://example.com/user4.jpg" },
   { user_id: 5, name: 'User 5', avatar: "https://example.com/user5.jpg" },
+  { user_id: 6, name: 'User 6', avatar: "https://example.com/user5.jpg" },
+  { user_id: 7, name: 'User 7', avatar: "https://example.com/user5.jpg" },
+  { user_id: 8, name: 'User 8', avatar: "https://example.com/user5.jpg" },
+  { user_id: 9, name: 'User 9', avatar: "https://example.com/user5.jpg" },
+  { user_id: 10, name: 'User 10', avatar: "https://example.com/user5.jpg" },
+  { user_id: 11, name: 'User 11', avatar: "https://example.com/user5.jpg" },
+  { user_id: 12, name: 'User 12', avatar: "https://example.com/user5.jpg" },
+  { user_id: 13, name: 'User 13', avatar: "https://example.com/user5.jpg" },
+  { user_id: 14, name: 'User 14', avatar: "https://example.com/user5.jpg" },
+  { user_id: 15, name: 'User 15', avatar: "https://example.com/user5.jpg" },
+  { user_id: 16, name: 'User 16', avatar: "https://example.com/user5.jpg" },
+  { user_id: 17, name: 'User 17', avatar: "https://example.com/user5.jpg" },
+  { user_id: 18, name: 'User 18', avatar: "https://example.com/user5.jpg" },
+
 ];
 
 const StoryView = () => {
