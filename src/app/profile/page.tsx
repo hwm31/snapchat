@@ -19,7 +19,7 @@ function ProfileScreen() {
         
         {/* Chat Prompt */}
         <div className="mt-4 bg-gradient-to-r from-gray-800 to-yellow-500 text-white text-center rounded-lg py-2">
-          <p className="text-sm">친구와 채팅, Snap, 영상 통화를 즐겨보세요</p>
+          <p className="text-sm">친구와 채팅을 즐겨보세요</p>
           <Link href="/chat">
             <button className="mt-2 bg-blue-500 rounded-full px-6 py-2 text-sm">
               지금 채팅하기
