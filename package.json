@@ -21,6 +21,7 @@
     "react-dom": "^18.2.0",
     "react-kakao-maps-sdk": "^1.1.27",
     "react-leaflet": "^4.2.1",
+    "react-router-dom": "^6.28.0",
     "recharts": "^2.13.3"
   },
   "devDependencies": {
