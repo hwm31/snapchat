@@ -3,16 +3,14 @@ import Link from 'next/link';
 export default function Footer() {
   const footerLinks = {
     team: [
-      { name: '김범수', href: '/team/kim-beomsoo' },
-      { name: '손인화', href: '/team/son-inhwa' },
+      { name: '김범수', href: 'https://snapchat.com/t/KqvQPQ1S' },
+      { name: '손인화', href: 'https://snapchat.com/t/REoNNXQ9' },
       { name: '신채운', href: 'https://snapchat.com/t/TsIjwQ4x' },
       { name: '이희승', href: '/team/lee-heeseung' },
     ],
     community: [
-      { name: '커뮤니티', href: '/community' },
-      { name: '고객지원', href: '/support' },
-      { name: '커뮤니티 가이드라인', href: '/guidelines' },
-      { name: '보안 센터', href: '/security-center' },
+      { name: 'GITHUB', href: 'https://github.com/hwm31/snapchat' },
+      
     ],
   };
 
