@@ -7,8 +7,8 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: '지역 농산물 유통 플랫폼',
-  description: '최적화된 경로로 신선한 농산물을 만나보세요',
+  title: 'Snapchat',
+  description: 'Snapchat으로 사진과 이야기를 친구들과 공유하세요!',
 };
 
 export default function RootLayout({
