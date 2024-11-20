@@ -1,8 +1,7 @@
 'use client';
-export const dynamic = 'force-dynamic';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation'; // Changed from next/router
+import { useRouter } from 'next/router';
 import axios from 'axios';
 import Image from 'next/image';
 
@@ -12,7 +11,7 @@ interface Chat {
   roomId: string;
 }
 
-const ChatScreen: React.FC = () => {
+const ChatClient: React.FC = () => {
   const router = useRouter();
   const [chats, setChats] = useState<Chat[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,7 +30,7 @@ const ChatScreen: React.FC = () => {
   }, []);
 
   const navigateToChatRoom = (roomId: string) => {
-    router.push(`/chat/${roomId}`); // This will work with next/navigation
+    router.push(`/chat/${roomId}`);
   };
 
   if (loading) {
@@ -47,6 +46,7 @@ const ChatScreen: React.FC = () => {
       <header className="bg-yellow-400 text-black px-4 py-3">
         <h1 className="text-2xl font-bold">채팅</h1>
       </header>
+
       <ul className="flex-grow overflow-y-auto">
         {chats.map((chat) => (
           <li
@@ -72,4 +72,4 @@ const ChatScreen: React.FC = () => {
   );
 };
 
-export default ChatScreen;
+export default ChatClient;

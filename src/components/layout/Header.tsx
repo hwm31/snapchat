@@ -1,36 +1,38 @@
-// src/components/layout/Header.tsx
 import Link from 'next/link';
 import Navigation from './Navigation';
 
 export default function Header() {
   return (
-    <header className="bg-white">
+    <header className="bg-black">
+      {/* Main Header */}
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-16 border-b border-gray-200">
+        <div className="flex justify-between items-center h-14">
+          {/* Logo */}
           <div className="flex-shrink-0">
             <Link href="/" className="flex items-center">
-              <span className="text-xl font-bold text-green-600">Snapchat</span>
+              <span className="text-2xl font-bold text-yellow-400">👻 Snapchat</span>
             </Link>
           </div>
-          
-          <div className="hidden md:block">
-            <div className="flex items-center space-x-4">
-              <Link
-                href="/login"
-                className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-              >
-                로그인
-              </Link>
-              <Link
-                href="/register"
-                className="bg-green-600 text-white hover:bg-green-700 px-4 py-2 rounded-md text-sm font-medium"
-              >
-                회원가입
-              </Link>
-            </div>
+
+          {/* Auth Buttons */}
+          <div className="flex items-center space-x-3">
+            <Link
+              href="/login"
+              className="text-yellow-400 hover:text-yellow-300 px-3 py-1.5 text-sm font-medium"
+            >
+              로그인
+            </Link>
+            <Link
+              href="/register"
+              className="bg-yellow-400 text-black hover:bg-yellow-300 px-4 py-1.5 rounded-full text-sm font-medium transition-colors"
+            >
+              회원가입
+            </Link>
           </div>
         </div>
       </div>
+
+      {/* Navigation */}
       <Navigation />
     </header>
   );
