@@ -9,8 +9,8 @@ export default function Footer() {
       { name: '이희승', href: '/team/lee-heeseung' },
     ],
     community: [
-      { name: 'GITHUB', href: 'https://github.com/hwm31/snapchat' },
-      
+      { name: 'GITHUB(REACT)', href: 'https://github.com/hwm31/snapchat' },
+      { name: 'GITHUB(API)', href: 'https://github.com/ILLUSE/snapchat_api' }
     ],
   };
 
@@ -20,7 +20,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Team Information */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">팀원 정보</h3>
+            <h3 className="text-sm font-semibold text-gray-900 mb-4">Teammate Information</h3>
             <ul className="space-y-2">
               {footerLinks.team.map((link) => (
                 <li key={link.name}>
@@ -34,7 +34,7 @@ export default function Footer() {
 
           {/* Community Information */}
           <div>
-            <h3 className="text-sm font-semibold text-gray-900 mb-4">커뮤니티</h3>
+            <h3 className="text-sm font-semibold text-gray-900 mb-4">Community</h3>
             <ul className="space-y-2">
               {footerLinks.community.map((link) => (
                 <li key={link.name}>
@@ -49,7 +49,7 @@ export default function Footer() {
 
         <div className="border-t border-gray-200 mt-8 pt-8">
           <p className="text-sm text-gray-500 text-center">
-            © {new Date().getFullYear()} 팀원 정보 플랫폼. All rights reserved.
+            © {new Date().getFullYear()} Teammate Information Platform. All rights reserved.
           </p>
         </div>
       </div>

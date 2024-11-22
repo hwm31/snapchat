@@ -8,24 +8,25 @@ export default function Home() {
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
       <header className="flex justify-between items-center px-4 py-4 bg-gray-900">
-        <h1 className="text-xl font-bold">Snapchat 소개</h1>
+        <h1 className="text-xl font-bold">Snapchat Introduction</h1>
       </header>
 
       {/* Main Content */}
       <main className="flex flex-col items-center justify-center text-center py-16 px-4 space-y-6">
-        <Image
-          src="/images/snapchat-logo.png" // 소개 이미지 경로
-          alt="Snapchat Logo"
-          width={200}
-          height={200}
-          className="rounded-full"
-        />
-        <h2 className="text-2xl font-bold">Snapchat에 오신 것을 환영합니다!</h2>
+      <Image
+  src="/SnapchatLogo.png" // public 디렉토리 기준 경로
+  alt="Snapchat Logo"
+  width={200}
+  height={200}
+  className="rounded-full"
+/>
+
+        <h2 className="text-2xl font-bold">Welcome to Snapchat!</h2>
         <p className="text-gray-300">
-          Snapchat은 사진과 이야기를 친구들과 공유하는 최고의 플랫폼입니다.
+        Snapchat is the best platform for sharing photos and stories with friends.
         </p>
         <p className="text-gray-300">
-          지금 시작하고, 나만의 특별한 순간을 함께하세요!
+        Start now and share your special moments with others!
         </p>
       </main>
 
@@ -33,12 +34,12 @@ export default function Home() {
       <div className="flex justify-center space-x-4 py-4">
         <Link href="/register">
           <button className="px-6 py-2 bg-yellow-400 text-black font-semibold rounded-lg hover:bg-yellow-300">
-            시작하기
+            Start
           </button>
         </Link>
         <Link href="/login">
           <button className="px-6 py-2 bg-gray-700 text-white font-semibold rounded-lg hover:bg-gray-600">
-            로그인
+            LogIn
           </button>
         </Link>
       </div>
@@ -48,7 +49,7 @@ export default function Home() {
         <div className="grid grid-cols-4 h-16">
           {[
             {
-              name: '홈',
+              name: 'Home',
               href: '/home',
               icon: (
                 <svg
@@ -67,7 +68,7 @@ export default function Home() {
               ),
             },
             {
-              name: '채팅',
+              name: 'Chat',
               href: '/chat',
               icon: (
                 <svg
@@ -86,7 +87,7 @@ export default function Home() {
               ),
             },
             {
-              name: '스토리',
+              name: 'Story',
               href: '/story',
               icon: (
                 <svg
@@ -105,7 +106,7 @@ export default function Home() {
               ),
             },
             {
-              name: '프로필',
+              name: 'Profile',
               href: '/profile',
               icon: (
                 <svg

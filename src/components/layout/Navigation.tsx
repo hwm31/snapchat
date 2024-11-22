@@ -8,7 +8,7 @@ export default function Navigation() {
 
   const navigation = [
     { 
-      name: '홈', 
+      name: 'Home', 
       href: '/home',
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -17,7 +17,7 @@ export default function Navigation() {
       )
     },
     { 
-      name: '채팅', 
+      name: 'Chat', 
       href: '/chat',
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -26,7 +26,7 @@ export default function Navigation() {
       )
     },
     { 
-      name: '스토리', 
+      name: 'Story', 
       href: '/story',
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -35,7 +35,7 @@ export default function Navigation() {
       )
     },
     { 
-      name: '프로필', 
+      name: 'Profile', 
       href: '/profile',
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

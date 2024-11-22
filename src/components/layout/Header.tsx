@@ -20,13 +20,13 @@ export default function Header() {
               href="/login"
               className="text-yellow-400 hover:text-yellow-300 px-3 py-1.5 text-sm font-medium"
             >
-              로그인
+              LogIn
             </Link>
             <Link
               href="/register"
               className="bg-yellow-400 text-black hover:bg-yellow-300 px-4 py-1.5 rounded-full text-sm font-medium transition-colors"
             >
-              회원가입
+              Register
             </Link>
           </div>
         </div>
