@@ -16,24 +16,12 @@ const LoginPage: React.FC = () => {
 
     setLoading(true); // 로딩 시작
     try {
-      const response = await fetch("http://localhost:5000/api/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (response.ok) {
-        alert("로그인 성공!");
-        window.location.href = "/home"; // 로그인 성공 후 홈 페이지로 이동
-      } else {
-        const error = await response.json();
-        alert(`로그인 실패: ${error.message}`);
-      }
+      // API 요청 생략 (테스트용)
+      alert("로그인 성공!"); 
+      window.location.href = "/after-login-page"; // 로그인 성공 후 친구 관리 페이지로 이동
     } catch (error) {
-      console.error("서버 오류:", error);
-      alert("서버 오류가 발생했습니다.");
+      console.error("로그인 중 오류:", error);
+      alert("로그인 실패!");
     } finally {
       setLoading(false); // 로딩 종료
     }
