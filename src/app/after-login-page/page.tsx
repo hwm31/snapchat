@@ -18,6 +18,12 @@ const AfterLoginPage = () => {
     { id: 9, name: "임윤승", birthday: "01-13", isBirthday: false },
   ]);
 
+  const [recommendedFriends] = useState([
+    { id: 10, name: "추천친구1", reason: "공통 관심사" },
+    { id: 11, name: "추천친구2", reason: "같은 지역 거주" },
+    { id: 12, name: "추천친구3", reason: "같은 학교 출신" },
+  ]);
+
   // 검색어를 기반으로 친구 필터링
   const filteredFriends = friends.filter((friend) =>
     friend.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -73,13 +79,40 @@ const AfterLoginPage = () => {
         )}
       </div>
 
+      {/* 추천 친구 섹션 */}
+      <div className="bg-white rounded-lg p-4 mb-4 shadow-md">
+        <div className="flex items-center mb-3">
+          <UserPlus className="text-blue-500 mr-2" size={24} />
+          <h2 className="text-lg font-bold text-gray-800">추천 친구</h2>
+        </div>
+        {recommendedFriends.length > 0 ? (
+          <div className="space-y-2">
+            {recommendedFriends.map((friend) => (
+              <div
+                key={friend.id}
+                className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg"
+              >
+                <div>
+                  <span className="block font-semibold">{friend.name}</span>
+                  <span className="text-sm text-gray-500">
+                    {friend.reason}
+                  </span>
+                </div>
+                <button className="text-blue-500 hover:text-blue-600 font-semibold">
+                  추가
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-600">추천할 친구가 없습니다.</p>
+        )}
+      </div>
+
       {/* 친구 목록 */}
       <div className="bg-white rounded-lg p-4 shadow-md">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-bold text-gray-800">친구 목록</h2>
-          <button className="text-blue-500 hover:text-blue-600">
-            <UserPlus size={20} />
-          </button>
         </div>
         <div className="space-y-2">
           {filteredFriends.length > 0 ? (
