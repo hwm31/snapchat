@@ -16,24 +16,12 @@ const RegisterPage: React.FC = () => {
 
     setLoading(true); // 로딩 시작
     try {
-      const response = await fetch("http://localhost:5000/api/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (response.ok) {
-        alert("회원가입 성공!");
-        window.location.href = "/login"; // 회원가입 후 로그인 페이지로 이동
-      } else {
-        const error = await response.json();
-        alert(`회원가입 실패: ${error.message}`);
-      }
+      // API 요청 생략 (테스트용)
+      alert("회원가입 성공!"); 
+      window.location.href = "/after-login-page"; // 회원가입 후 친구 관리 페이지로 이동
     } catch (error) {
-      console.error("서버 오류:", error);
-      alert("서버 오류가 발생했습니다.");
+      console.error("회원가입 중 오류:", error);
+      alert("회원가입 실패!");
     } finally {
       setLoading(false); // 로딩 종료
     }
