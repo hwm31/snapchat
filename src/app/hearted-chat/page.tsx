@@ -1,9 +1,6 @@
 'use client';
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useRouter } from 'next/navigation';
-import { Heart } from "lucide-react";
 
 interface ChatList {
   name: string;
@@ -11,20 +8,19 @@ interface ChatList {
   chat_time: string;
 }
 
-export default function ChatPage() {
+export default function HeartedChatPage() {
   const [chatList, setChatList] = useState<ChatList[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const router = useRouter(); // Next.js의 useRouter 사용
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchHeartedChats = async () => {
       try {
-        const response = await axios.post('http://127.0.0.1:5000/chatlist', {
-          user_id: 1,
+        const response = await axios.post('http://127.0.0.1:5000/hearted-chatlist', { 
+          user_id: 1 // 현재 사용자의 user_id
         });
 
-        console.log('API Response:', response.data);
+        console.log('API Response:', response.data); // 응답 데이터 확인
 
         if (!response.data || !response.data.chat) {
           throw new Error('Invalid response format');
@@ -57,7 +53,7 @@ export default function ChatPage() {
       }
     };
 
-    fetchData();
+    fetchHeartedChats();
   }, []);
 
   if (loading) {
@@ -81,19 +77,7 @@ export default function ChatPage() {
 
   return (
     <div className="min-h-screen bg-black text-white p-4">
-      <h1 className="text-2xl font-bold mb-4">Chat List</h1>
-      
-      <button
-        onClick={() => router.push('/hearted-chat')}
-        className="group flex items-center gap-2 bg-gradient-to-r from-pink-500 to-rose-500 
-                 hover:from-pink-600 hover:to-rose-600 text-white px-6 py-3 rounded-lg
-                 transition-all duration-300 transform hover:scale-105 shadow-lg
-                 hover:shadow-pink-500/25 mb-4"
-      >
-        <Heart className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
-        <span className="font-medium">hearted only</span>
-      </button>
-
+      <h1 className="text-2xl font-bold mb-4">❤️ Hearted Chat List</h1>
       <ul>
         {chatList.map((chat, index) => (
           <li
