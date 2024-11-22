@@ -17,7 +17,7 @@ export default function ChatPage() {
     const fetchData = async () => {
       try {
         const response = await axios.post('http://127.0.0.1:5000/chatlist', { 
-          cust_id: 1 
+          user_id: 1 
         });
         
         console.log('API Response:', response.data); // 전체 응답 데이터 확인
