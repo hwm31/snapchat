@@ -1,6 +1,7 @@
 "use client"; // 클라이언트 컴포넌트임을 명시
 
 import React, { useState } from "react";
+import { signIn } from "next-auth/react"; // GitHub OAuth 로그인 추가
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState<string>(""); // 이메일 상태
@@ -17,7 +18,7 @@ const LoginPage: React.FC = () => {
     setLoading(true); // 로딩 시작
     try {
       // API 요청 생략 (테스트용)
-      alert("로그인 성공!"); 
+      alert("로그인 성공!");
       window.location.href = "/after-login-page"; // 로그인 성공 후 친구 관리 페이지로 이동
     } catch (error) {
       console.error("로그인 중 오류:", error);
@@ -30,6 +31,7 @@ const LoginPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-yellow-50 flex flex-col justify-center items-center">
       <h1 className="text-4xl font-extrabold text-yellow-600 mb-6">로그인</h1>
+      {/* 기존 이메일/비밀번호 로그인 폼 */}
       <form
         onSubmit={handleLogin}
         className="w-80 bg-white p-6 rounded-lg shadow-md"
@@ -64,6 +66,10 @@ const LoginPage: React.FC = () => {
           {loading ? "로그인 중..." : "로그인"}
         </button>
       </form>
+
+    
+
+      {/* 회원가입 링크 */}
       <p className="mt-4 text-sm text-gray-700">
         계정이 없으신가요?{" "}
         <a href="/register" className="text-yellow-600 hover:underline font-medium">

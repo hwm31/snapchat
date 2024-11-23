@@ -13,8 +13,8 @@ const ProfileScreen: React.FC = () => {
             alt="Profile"
             className="w-24 h-24 rounded-full border-4 border-yellow-500"
           />
-          <h2 className="text-lg font-semibold mt-4">Chaeun Shin</h2>
-          <p className="text-sm text-gray-500">codns0929</p>
+          <h2 className="text-lg font-semibold mt-4">Poongjin Jo</h2>
+          <p className="text-sm text-gray-500">poongjin@gachon.ac.kr</p>
         </div>
 
         {/* Chat Prompt */}
@@ -32,7 +32,7 @@ const ProfileScreen: React.FC = () => {
           <ul className="space-y-2">
             <li className="flex justify-between items-center bg-gray-100 p-3 rounded-lg shadow-sm">
               <Link href="/change-password" className="flex-grow">
-                Chang Password
+                Change Password
               </Link>
               <span>&gt;</span>
             </li>
