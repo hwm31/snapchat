@@ -2,112 +2,165 @@
 
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Heart } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { Heart } from "lucide-react";
 
-interface ChatList {
+// Type definitions
+type ChatRoom = {
   name: string;
   chat: string;
   chat_time: string;
-}
+  count?: number;
+};
 
-export default function ChatPage() {
-  const [chatList, setChatList] = useState<ChatList[]>([]);
+const ChatView = () => {
+  const [chatRooms, setChatRooms] = useState<ChatRoom[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const router = useRouter(); // Next.js의 useRouter 사용
+  const [error, setError] = useState<string>('');
+  const [showHeartedOnly, setShowHeartedOnly] = useState(false);
+  const router = useRouter();
+
+  // API 설정
+  const API_BASE_URL = 'http://127.0.0.1:5000';
+  
+  // Axios 인스턴스 생성
+  const axiosInstance = axios.create({
+    baseURL: API_BASE_URL,
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+    withCredentials: false // CORS 설정
+  });
+
+  // Fetch chat rooms data
+  const fetchChatRooms = async (heartedOnly = false) => {
+    setLoading(true);
+    try {
+      const endpoint = heartedOnly ? '/hearted-chatlist' : '/chatlist';
+      const response = await axiosInstance.post(endpoint, {
+        user_id: 1,
+      });
+
+      console.log('API Response:', response.data); // 응답 데이터 확인
+
+      if (!response.data ||
+          !Array.isArray(response.data.room_name) ||
+          !Array.isArray(response.data.chat) ||
+          !Array.isArray(response.data.chat_time)) {
+        throw new Error('Invalid response format');
+      }
+
+      const minLength = Math.min(
+        response.data.room_name.length,
+        response.data.chat.length,
+        response.data.chat_time.length,
+        response.data.count?.length || Infinity
+      );
+
+      const chatData = Array.from({ length: minLength }, (_, index) => ({
+        name: response.data.room_name[index] || 'Unknown',
+        chat: response.data.chat[index] || 'No message',
+        chat_time: response.data.chat_time[index] || 'Unknown time',
+        count: response.data.count?.[index]
+      }));
+
+      setChatRooms(chatData);
+    } catch (err) {
+      console.error('Error fetching chat rooms:', err);
+      if (axios.isAxiosError(err)) {
+        if (err.response) {
+          setError(`Server Error: ${err.response.data.message || 'Unknown error'}`);
+        } else if (err.request) {
+          setError('No response from server. Please check if the server is running.');
+        } else {
+          setError(`Request Error: ${err.message}`);
+        }
+      } else {
+        setError('An unexpected error occurred');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Toggle hearted filter
+  const handleHeartedFilter = () => {
+    setShowHeartedOnly(!showHeartedOnly);
+    fetchChatRooms(!showHeartedOnly);
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.post('http://127.0.0.1:5000/chatlist', {
-          user_id: 1,
-        });
-
-        console.log('API Response:', response.data);
-
-        if (!response.data || !response.data.chat) {
-          throw new Error('Invalid response format');
-        }
-
-        const chatData = response.data.chat.map((_: any, index: number) => ({
-          name: response.data.name[index],
-          chat: response.data.chat[index],
-          chat_time: response.data.chat_time[index],
-        }));
-
-        console.log('Formatted Data:', chatData);
-        setChatList(chatData);
-      } catch (err) {
-        console.error('API Error:', err);
-        if (axios.isAxiosError(err)) {
-          if (err.response) {
-            console.error('Error response:', err.response.data);
-            setError(`서버 오류: ${err.response.data.error || '알 수 없는 오류가 발생했습니다'}`);
-          } else if (err.request) {
-            setError('서버에서 응답이 없습니다. 서버가 실행 중인지 확인해주세요.');
-          } else {
-            setError(`요청 오류: ${err.message}`);
-          }
-        } else {
-          setError('알 수 없는 오류가 발생했습니다.');
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
+    fetchChatRooms(showHeartedOnly);
   }, []);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <p>로딩 중...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-500 mb-4">{error}</p>
-          <p className="text-sm">콘솔에서 자세한 오류 내용을 확인할 수 있습니다.</p>
+  return (
+    <div className="min-h-screen bg-black">
+      {/* Header Section */}
+      <div className="border-b border-gray-800 p-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-white">
+            {showHeartedOnly ? '❤️ Chat List' : 'Chat List'}
+          </h1>
+          <button
+            onClick={handleHeartedFilter}
+            className="flex items-center gap-2 px-4 py-2 bg-white/10 rounded-full hover:bg-white/20 transition-colors duration-300"
+          >
+            <Heart
+              className={`${showHeartedOnly ? 'fill-red-500 text-red-500' : 'text-gray-400'} transition-all duration-300`}
+              size={20}
+            />
+            <span className="text-white">
+              {showHeartedOnly ? 'Show All' : 'Hearted Only'}
+            </span>
+          </button>
         </div>
       </div>
-    );
-  }
 
-  return (
-    <div className="min-h-screen bg-black text-white p-4">
-      <h1 className="text-2xl font-bold mb-4">Chat List</h1>
-      
-      <button
-        onClick={() => router.push('/hearted-chat')}
-        className="group flex items-center gap-2 bg-gradient-to-r from-pink-500 to-rose-500 
-                 hover:from-pink-600 hover:to-rose-600 text-white px-6 py-3 rounded-lg
-                 transition-all duration-300 transform hover:scale-105 shadow-lg
-                 hover:shadow-pink-500/25 mb-4"
-      >
-        <Heart className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
-        <span className="font-medium">hearted only</span>
-      </button>
-
-      <ul>
-        {chatList.map((chat, index) => (
-          <li
-            key={index}
-            className="border-b border-gray-700 py-4 flex justify-between"
-          >
-            <div>
-              <p className="font-semibold">{chat.name}</p>
-              <p className="text-gray-400">{chat.chat}</p>
-            </div>
-            <span className="text-sm text-gray-500">{chat.chat_time}</span>
-          </li>
-        ))}
-      </ul>
+      {/* Content Section */}
+      <div className="w-full">
+        {loading ? (
+          <div className="flex items-center justify-center h-64 text-gray-400">
+            Loading...
+          </div>
+        ) : error ? (
+          <div className="flex items-center justify-center h-64 text-red-500">
+            {error}
+          </div>
+        ) : chatRooms.length === 0 ? (
+          <div className="flex items-center justify-center h-64 text-gray-500">
+            {showHeartedOnly ? 'No hearted chats available' : 'No chats available'}
+          </div>
+        ) : (
+          <div className="divide-y divide-gray-800">
+            {chatRooms.map((room, index) => (
+              <div
+                key={index}
+                className="p-4 hover:bg-gray-900/50 transition-colors duration-200 cursor-pointer"
+              >
+                <div className="flex justify-between items-start gap-4">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-medium text-white">{room.name}</span>
+                      {room.count && (
+                        <span className="text-sm px-2 py-0.5 bg-gray-800 rounded-full text-gray-400">
+                          {room.count}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-gray-400 text-sm truncate">{room.chat}</p>
+                  </div>
+                  <span className="text-xs text-gray-500 whitespace-nowrap">
+                    {room.chat_time}
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
-}
+};
+
+export default ChatView;

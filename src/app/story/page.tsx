@@ -1,67 +1,163 @@
-// StoryView.tsx
-import React from 'react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { Heart } from 'lucide-react';
 import styles from './StoryView.module.css';
 
-// Hardcoded story data (as if it was fetched from an API)
-const stories = [
-  {
-    story_id: 1,
-    user_id: 1,
-    media_url: "https://example.com/myphoto1.jpg",
-    post_at: "2024-11-20T12:00:00.000Z"
-  },
-  {
-    story_id: 2,
-    user_id: 2,
-    media_url: "https://example.com/myphoto2.jpg",
-    post_at: "2024-11-20T12:30:00.000Z"
-  },
-  {
-    story_id: 3,
-    user_id: 3,
-    media_url: "https://example.com/myphoto3.jpg",
-    post_at: "2024-11-20T13:00:00.000Z"
-  },
-  // Add more stories as needed
-];
+// Type definitions for data structures
+type Story = {
+  story_id: number;
+  media_url: string;
+  user_id: string;
+  post_at: string;
+};
 
-// Hardcoded friends data
-const friends = [
-  { user_id: 1, name: 'User 1', avatar: "https://example.com/user1.jpg" },
-  { user_id: 2, name: 'User 2', avatar: "https://example.com/user2.jpg" },
-  { user_id: 3, name: 'User 3', avatar: "https://example.com/user3.jpg" },
-  { user_id: 4, name: 'User 4', avatar: "https://example.com/user4.jpg" },
-  { user_id: 5, name: 'User 5', avatar: "https://example.com/user5.jpg" },
-  { user_id: 6, name: 'User 6', avatar: "https://example.com/user5.jpg" },
-  { user_id: 7, name: 'User 7', avatar: "https://example.com/user5.jpg" },
-  { user_id: 8, name: 'User 8', avatar: "https://example.com/user5.jpg" },
-  { user_id: 9, name: 'User 9', avatar: "https://example.com/user5.jpg" },
-  { user_id: 10, name: 'User 10', avatar: "https://example.com/user5.jpg" },
-  { user_id: 11, name: 'User 11', avatar: "https://example.com/user5.jpg" },
-  { user_id: 12, name: 'User 12', avatar: "https://example.com/user5.jpg" },
-  { user_id: 13, name: 'User 13', avatar: "https://example.com/user5.jpg" },
-  { user_id: 14, name: 'User 14', avatar: "https://example.com/user5.jpg" },
-  { user_id: 15, name: 'User 15', avatar: "https://example.com/user5.jpg" },
-  { user_id: 16, name: 'User 16', avatar: "https://example.com/user5.jpg" },
-  { user_id: 17, name: 'User 17', avatar: "https://example.com/user5.jpg" },
-  { user_id: 18, name: 'User 18', avatar: "https://example.com/user5.jpg" },
+type Friend = {
+  user_id: number;
+  name: string;
+  avatar: string;
+};
 
-];
+type StoryResponse = {
+  name: string[];
+  story_url: string[];
+  upload_time: string[];
+};
+
+type FriendResponse = {
+  name: string[];
+  image: string[];
+};
 
 const StoryView = () => {
+  const [stories, setStories] = useState<Story[]>([]); 
+  const [friends, setFriends] = useState<Friend[]>([]); 
+  const [loadingStories, setLoadingStories] = useState(true);
+  const [loadingFriends, setLoadingFriends] = useState(true);
+  const [showLikedOnly, setShowLikedOnly] = useState(false);
+
+  // Fetch stories from the Flask server
+  const fetchStories = async (likedOnly = false) => {
+    try {
+      const endpoint = likedOnly ? 'http://127.0.0.1:5000/hearted-story' : 'http://127.0.0.1:5000/story';
+      const response = await axios.post<StoryResponse>(endpoint, {
+        start_time: "2024-11-21 12:00:00",
+        end_time: "2024-11-22 12:00:00",
+      });
+
+      console.log("Stories response:", response.data);
+
+      const transformedStories = response.data.story_url.map((url, index) => ({
+        story_id: index + 1,
+        media_url: url,
+        user_id: response.data.name[index],
+        post_at: response.data.upload_time[index],
+      }));
+      setStories(transformedStories);
+    } catch (error) {
+      console.error("Error fetching stories:", error);
+    } finally {
+      setLoadingStories(false);
+    }
+  };
+
+  // Fetch friends from the Flask server
+  const fetchFriends = async (likedOnly = false) => {
+    try {
+      const endpoint = likedOnly ? 'http://127.0.0.1:5000/hearted-friend_list' : 'http://127.0.0.1:5000/friend_list';
+      const response = await axios.post<FriendResponse>(endpoint, {
+        user_id: 1, // Replace with actual user_id
+      });
+
+      console.log("Friends response:", response.data);
+
+      const transformedFriends = response.data.name.map((name, index) => ({
+        user_id: index + 1,
+        name,
+        avatar: response.data.image[index],
+      }));
+      setFriends(transformedFriends);
+    } catch (error) {
+      console.error("Error fetching friends:", error);
+    } finally {
+      setLoadingFriends(false);
+    }
+  };
+
+  // Liked content filter handler
+  const handleLikedFilter = () => {
+    setShowLikedOnly(!showLikedOnly);
+    
+    // Reset loading states
+    setLoadingStories(true);
+    setLoadingFriends(true);
+
+    // Fetch liked content
+    if (!showLikedOnly) {
+      fetchStories(true);
+      fetchFriends(true);
+    } else {
+      // Revert to original content
+      fetchStories();
+      fetchFriends();
+    }
+  };
+
+  // Initial data fetch
+  useEffect(() => {
+    fetchStories();
+    fetchFriends();
+  }, []);
+
   return (
     <div className={styles.storyContainer}>
+      {/* Liked Content Filter Button with Heart */}
+      <div className={`${styles.filterContainer} flex items-center justify-end p-4`}>
+        <button 
+          onClick={handleLikedFilter} 
+          className={`
+            flex items-center justify-center 
+            px-4 py-2 
+            bg-white 
+            border-2 
+            ${showLikedOnly ? 'border-red-500 text-red-500' : 'border-gray-300 text-gray-500'}
+            rounded-full 
+            hover:bg-gray-50 
+            transition-all 
+            duration-300 
+            shadow-sm
+            space-x-2
+          `}
+        >
+          <Heart 
+            className={`
+              ${showLikedOnly ? 'fill-red-500 text-red-500' : 'text-gray-400'}
+              transition-all 
+              duration-300
+            `}
+            size={20}
+          />
+          <span>{showLikedOnly ? 'Show All' : 'Liked Only'}</span>
+        </button>
+      </div>
 
       {/* Friends' List - Horizontally Scrolling */}
       <h2>Friends</h2>
       <div className={styles.friendsScrollContainer}>
-        {friends.length === 0 ? (
+        {loadingFriends ? (
+          <p>Loading friends...</p>
+        ) : friends.length === 0 ? (
           <p>No friends available</p>
         ) : (
           friends.map((friend) => (
             <div key={friend.user_id} className={styles.friendItem}>
               <div className={styles.friendAvatarContainer}>
-                <img src={friend.avatar} alt={`${friend.name}'s avatar`} className={styles.friendAvatar} />
+                <img
+                  src={friend.avatar}
+                  alt={`${friend.name}'s avatar`}
+                  className={styles.friendAvatar}
+                />
               </div>
               <p className={styles.friendName}>{friend.name}</p>
             </div>
@@ -72,16 +168,22 @@ const StoryView = () => {
       {/* Stories Section */}
       <h2>Stories</h2>
       <div className={styles.storiesList}>
-        {stories.length === 0 ? (
+        {loadingStories ? (
+          <p>Loading stories...</p>
+        ) : stories.length === 0 ? (
           <p>No stories available</p>
         ) : (
           <div className={styles.storiesGrid}>
             {stories.map((story) => (
               <div key={story.story_id} className={styles.storyItem}>
                 <div className={styles.storyImageContainer}>
-                  <img src={story.media_url} alt="story media" className={styles.storyImage} />
+                  <img
+                    src={story.media_url}
+                    alt="story media"
+                    className={styles.storyImage}
+                  />
                 </div>
-                <p>{`Posted by User ID: ${story.user_id}`}</p>
+                <p>{`Posted by User: ${story.user_id}`}</p>
                 <p>{new Date(story.post_at).toLocaleString()}</p>
               </div>
             ))}
@@ -93,5 +195,3 @@ const StoryView = () => {
 };
 
 export default StoryView;
-
-

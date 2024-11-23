@@ -16,20 +16,30 @@ export default function HeartedChatPage() {
   useEffect(() => {
     const fetchHeartedChats = async () => {
       try {
-        const response = await axios.post('http://127.0.0.1:5000/hearted-chatlist', { 
-          user_id: 1 // 현재 사용자의 user_id
+        const response = await axios.post('http://127.0.0.1:5000/hearted-chatlist', {
+          user_id: 1
         });
+        console.log('API Response:', response.data);
 
-        console.log('API Response:', response.data); // 응답 데이터 확인
-
-        if (!response.data || !response.data.chat) {
+        // API 응답 구조 검증
+        if (!response.data || 
+            !Array.isArray(response.data.room_name) || 
+            !Array.isArray(response.data.chat) || 
+            !Array.isArray(response.data.chat_time)) {
           throw new Error('Invalid response format');
         }
 
-        const chatData = response.data.chat.map((_: any, index: number) => ({
-          name: response.data.name[index],
-          chat: response.data.chat[index],
-          chat_time: response.data.chat_time[index],
+        // 배열 길이 확인
+        const minLength = Math.min(
+          response.data.room_name.length,
+          response.data.chat.length,
+          response.data.chat_time.length
+        );
+
+        const chatData = Array.from({ length: minLength }, (_, index) => ({
+          name: response.data.room_name[index] || 'Unknown',
+          chat: response.data.chat[index] || 'No message',
+          chat_time: response.data.chat_time[index] || 'Unknown time'
         }));
 
         console.log('Formatted Data:', chatData);
@@ -78,20 +88,26 @@ export default function HeartedChatPage() {
   return (
     <div className="min-h-screen bg-black text-white p-4">
       <h1 className="text-2xl font-bold mb-4">❤️ Hearted Chat List</h1>
-      <ul>
-        {chatList.map((chat, index) => (
-          <li
-            key={index}
-            className="border-b border-gray-700 py-4 flex justify-between"
-          >
-            <div>
-              <p className="font-semibold">{chat.name}</p>
-              <p className="text-gray-400">{chat.chat}</p>
-            </div>
-            <span className="text-sm text-gray-500">{chat.chat_time}</span>
-          </li>
-        ))}
-      </ul>
+      {chatList.length === 0 ? (
+        <div className="text-center text-gray-500 py-8">
+          하트 표시된 채팅방이 없습니다
+        </div>
+      ) : (
+        <ul>
+          {chatList.map((chat, index) => (
+            <li
+              key={index}
+              className="border-b border-gray-700 py-4 flex justify-between hover:bg-gray-900 transition-colors duration-200 cursor-pointer"
+            >
+              <div>
+                <p className="font-semibold">{chat.name}</p>
+                <p className="text-gray-400">{chat.chat}</p>
+              </div>
+              <span className="text-sm text-gray-500">{chat.chat_time}</span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
