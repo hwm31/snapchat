@@ -5,12 +5,12 @@ import axios from 'axios';
 import { Heart } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-// Type definitions
 type ChatRoom = {
   name: string;
   chat: string;
   chat_time: string;
-  count?: number;
+  member_cnt?: number;
+  chat_cnt: number;
 };
 
 const ChatView = () => {
@@ -20,20 +20,17 @@ const ChatView = () => {
   const [showHeartedOnly, setShowHeartedOnly] = useState(false);
   const router = useRouter();
 
-  // API 설정
   const API_BASE_URL = 'http://127.0.0.1:5000';
   
-  // Axios 인스턴스 생성
   const axiosInstance = axios.create({
     baseURL: API_BASE_URL,
     headers: {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
     },
-    withCredentials: false // CORS 설정
+    withCredentials: false
   });
 
-  // Fetch chat rooms data
   const fetchChatRooms = async (heartedOnly = false) => {
     setLoading(true);
     try {
@@ -42,7 +39,7 @@ const ChatView = () => {
         user_id: 1,
       });
 
-      console.log('API Response:', response.data); // 응답 데이터 확인
+      console.log('API Response:', response.data);
 
       if (!response.data ||
           !Array.isArray(response.data.room_name) ||
@@ -55,14 +52,16 @@ const ChatView = () => {
         response.data.room_name.length,
         response.data.chat.length,
         response.data.chat_time.length,
-        response.data.count?.length || Infinity
+        response.data.member_cnt?.length || Infinity,
+        response.data.chat_cnt?.length || Infinity
       );
 
       const chatData = Array.from({ length: minLength }, (_, index) => ({
         name: response.data.room_name[index] || 'Unknown',
         chat: response.data.chat[index] || 'No message',
         chat_time: response.data.chat_time[index] || 'Unknown time',
-        count: response.data.count?.[index]
+        member_cnt: response.data.member_cnt?.[index],
+        chat_cnt: response.data.chat_cnt?.[index]
       }));
 
       setChatRooms(chatData);
@@ -84,7 +83,6 @@ const ChatView = () => {
     }
   };
 
-  // Toggle hearted filter
   const handleHeartedFilter = () => {
     setShowHeartedOnly(!showHeartedOnly);
     fetchChatRooms(!showHeartedOnly);
@@ -96,7 +94,6 @@ const ChatView = () => {
 
   return (
     <div className="min-h-screen bg-black">
-      {/* Header Section */}
       <div className="border-b border-gray-800 p-6">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-white">
@@ -117,7 +114,6 @@ const ChatView = () => {
         </div>
       </div>
 
-      {/* Content Section */}
       <div className="w-full">
         {loading ? (
           <div className="flex items-center justify-center h-64 text-gray-400">
@@ -133,30 +129,35 @@ const ChatView = () => {
           </div>
         ) : (
           <div className="divide-y divide-gray-800">
-            {chatRooms.map((room, index) => (
-              <div
-                key={index}
-                className="p-4 hover:bg-gray-900/50 transition-colors duration-200 cursor-pointer"
-              >
-                <div className="flex justify-between items-start gap-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium text-white">{room.name}</span>
-                      {room.count && (
-                        <span className="text-sm px-2 py-0.5 bg-gray-800 rounded-full text-gray-400">
-                          {room.count}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-gray-400 text-sm truncate">{room.chat}</p>
-                  </div>
-                  <span className="text-xs text-gray-500 whitespace-nowrap">
-                    {room.chat_time}
-                  </span>
-                </div>
-              </div>
-            ))}
+  {chatRooms.map((room, index) => (
+    <div
+      key={index}
+      className="p-4 hover:bg-gray-900/50 transition-colors duration-200 cursor-pointer"
+    >
+      <div className="flex justify-between items-start gap-4">
+        <div className="flex-1">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="font-medium text-white">{room.name}</span>
+            <span className="text-sm text-gray-400">
+              {room.member_cnt ?? 0}
+            </span>
           </div>
+          <p className="text-gray-400 text-sm truncate">{room.chat}</p>
+        </div>
+        <div className="flex flex-col items-end">
+          <span className="text-xs text-gray-500 whitespace-nowrap">
+            {room.chat_time}
+          </span>
+          {room.chat_cnt && room.chat_cnt > 0 && (
+            <span className="mt-1 text-sm px-2 py-0.5 bg-red-500/20 rounded-full text-red-500">
+              {room.chat_cnt}
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
         )}
       </div>
     </div>
