@@ -1,26 +1,27 @@
 "use client";
-
 import React, { useState, useEffect } from "react";
-import { Search, Cake } from "lucide-react";
+import { Search, Cake, Users } from "lucide-react";
 
 const AfterLoginPage = () => {
-  const [searchQuery, setSearchQuery] = useState<string>(""); // 검색어 상태
-  const [friends, setFriends] = useState<
-    { id: number; name: string; birthday: string; isBirthday: boolean; profilePicture?: string }[]
-  >([]);
-  const [userName, setUserName] = useState<string>("사용자"); // 사용자 이름 상태 추가
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [friends, setFriends] = useState<any[]>([]);
+  const [recommendations, setRecommendations] = useState<{
+    toMe: any[];
+    popular: any[];
+  }>({ toMe: [], popular: [] }); // 추천 친구 상태
+  const [userName, setUserName] = useState<string>("사용자");
   const [userProfilePicture, setUserProfilePicture] = useState<string>("default-profile.png");
-  const [loading, setLoading] = useState<boolean>(true); // 로딩 상태
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const fetchFriends = async () => {
+    const fetchUserData = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:5000/after-login-page", {
+        const response = await fetch("http://127.0.0.1:5000/user-info", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ user_id: 1 }), // 사용자 ID 전송
+          body: JSON.stringify({ user_id: 1, cnt_limit: 3 }), // 사용자 ID와 추천 친구 수 제한 전송
         });
 
         const data = await response.json();
@@ -29,17 +30,35 @@ const AfterLoginPage = () => {
           return;
         }
 
-        setUserName(data.userName || "사용자"); // 사용자 이름 상태 설정
+        // 상태 업데이트
+        setUserName(data.userName || "사용자");
+        setUserProfilePicture(
+          `/image/profile/${data.userProfilePicture || "default-profile.png"}`
+        );
         setFriends(
           data.friends.map((friend: any) => ({
             id: friend.user_id,
             name: friend.name,
             birthday: friend.birthday,
             isBirthday: friend.is_birthday,
-            profilePicture: `/image/profile/${friend.profile_picture || "default-profile.png"}`, // 경로 설정
+            profilePicture: `/image/profile/${friend.profile_picture || "default-profile.png"}`,
           }))
         );
-        setUserProfilePicture(`/image/profile/${data.userProfilePicture || "default-profile.png"}`); // 사용자 프로필 경로 설정
+        setRecommendations({
+          toMe: data.recommendations.to_me.map((rec: any) => ({
+            name: rec.name,
+            url: rec.url.startsWith("/image/profile/") 
+              ? rec.url // 이미 경로가 보정된 경우 그대로 사용
+              : `/image/profile/${rec.url}`, // 경로 보정
+          })),
+          popular: data.recommendations.popular.map((rec: any) => ({
+            name: rec.name,
+            url: rec.url.startsWith("/image/profile/") 
+              ? rec.url // 이미 경로가 보정된 경우 그대로 사용
+              : `/image/profile/${rec.url}`, // 경로 보정
+          })),
+        });
+        
       } catch (error) {
         console.error("Fetch Error:", error);
       } finally {
@@ -47,7 +66,7 @@ const AfterLoginPage = () => {
       }
     };
 
-    fetchFriends();
+    fetchUserData();
   }, []);
 
   const filteredFriends = friends.filter((friend) =>
@@ -88,6 +107,49 @@ const AfterLoginPage = () => {
         />
       </div>
 
+      {/* 추천 친구 섹션 */}
+      <div className="bg-white rounded-lg p-4 mb-4 shadow-md">
+        <div className="flex items-center mb-3">
+          <Users className="text-blue-500 mr-2" size={24} />
+          <h2 className="text-lg font-bold text-gray-800">추천 친구</h2>
+        </div>
+        <h3 className="font-bold text-gray-700 mb-2">나를 추가한 친구</h3>
+        {recommendations.toMe.length > 0 ? (
+          recommendations.toMe.map((recommend, index) => (
+            <div key={index} className="flex items-center justify-between p-2 bg-blue-50 rounded-lg">
+              <div className="flex items-center">
+                <img
+                  src={recommend.url}
+                  alt={recommend.name}
+                  className="w-10 h-10 rounded-full mr-3"
+                />
+                <span className="font-semibold">{recommend.name}</span>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p className="text-gray-600">추천할 친구가 없습니다.</p>
+        )}
+
+        <h3 className="font-bold text-gray-700 mb-2 mt-4">인기 친구 추천</h3>
+        {recommendations.popular.length > 0 ? (
+          recommendations.popular.map((recommend, index) => (
+            <div key={index} className="flex items-center justify-between p-2 bg-blue-50 rounded-lg">
+              <div className="flex items-center">
+                <img
+                  src={recommend.url}
+                  alt={recommend.name}
+                  className="w-10 h-10 rounded-full mr-3"
+                />
+                <span className="font-semibold">{recommend.name}</span>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p className="text-gray-600">추천할 친구가 없습니다.</p>
+        )}
+      </div>
+
       {/* 이번 달 생일인 친구 섹션 */}
       <div className="bg-white rounded-lg p-4 mb-4 shadow-md">
         <div className="flex items-center mb-3">
@@ -111,9 +173,6 @@ const AfterLoginPage = () => {
                   <span className="text-sm text-gray-500">🎂 {friend.birthday}</span>
                 </div>
               </div>
-              <button className="text-pink-500 hover:text-pink-600 font-semibold">
-                축하하기
-              </button>
             </div>
           ))
         ) : (
