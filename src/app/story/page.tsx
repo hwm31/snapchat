@@ -2,10 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Heart } from 'lucide-react';
-import styles from './StoryView.module.css';
+import { Heart, ChevronLeft, ChevronRight } from 'lucide-react';
 
-// Type definitions for data structures
 type Story = {
   story_id: number;
   media_url: string;
@@ -17,6 +15,9 @@ type Friend = {
   user_id: number;
   name: string;
   avatar: string;
+  has_story: number;
+  story_count: number;
+  story_url: string | null;
 };
 
 type StoryResponse = {
@@ -28,25 +29,27 @@ type StoryResponse = {
 type FriendResponse = {
   name: string[];
   image: string[];
+  has_story: number[];
+  story_count: number[];
+  story_url: string[];
 };
 
 const StoryView = () => {
-  const [stories, setStories] = useState<Story[]>([]); 
-  const [friends, setFriends] = useState<Friend[]>([]); 
+  const [stories, setStories] = useState<Story[]>([]);
+  const [friends, setFriends] = useState<Friend[]>([]);
   const [loadingStories, setLoadingStories] = useState(true);
   const [loadingFriends, setLoadingFriends] = useState(true);
   const [showLikedOnly, setShowLikedOnly] = useState(false);
+  const [activeStory, setActiveStory] = useState<Story | null>(null);
+  const [storyIndex, setStoryIndex] = useState(0);
 
-  // Fetch stories from the Flask server
   const fetchStories = async (likedOnly = false) => {
     try {
       const endpoint = likedOnly ? 'http://127.0.0.1:5000/hearted-story' : 'http://127.0.0.1:5000/story';
       const response = await axios.post<StoryResponse>(endpoint, {
-        start_time: "2024-11-21 12:00:00",
-        end_time: "2024-11-22 12:00:00",
+        start_time: "2024-11-21 20:00:00",
+        end_time: "2024-11-22 20:00:00",
       });
-
-      console.log("Stories response:", response.data);
 
       const transformedStories = response.data.story_url.map((url, index) => ({
         story_id: index + 1,
@@ -62,20 +65,22 @@ const StoryView = () => {
     }
   };
 
-  // Fetch friends from the Flask server
   const fetchFriends = async (likedOnly = false) => {
     try {
       const endpoint = likedOnly ? 'http://127.0.0.1:5000/hearted-friend_list' : 'http://127.0.0.1:5000/friend_list';
       const response = await axios.post<FriendResponse>(endpoint, {
-        user_id: 1, // Replace with actual user_id
+        user_id: 1,
+        start_time: "2024-11-21 20:00:00",
+        end_time: "2024-11-22 20:00:00",
       });
-
-      console.log("Friends response:", response.data);
 
       const transformedFriends = response.data.name.map((name, index) => ({
         user_id: index + 1,
         name,
         avatar: response.data.image[index],
+        has_story: response.data.has_story[index],
+        story_count: response.data.story_count[index],
+        story_url: response.data.story_url[index],
       }));
       setFriends(transformedFriends);
     } catch (error) {
@@ -85,111 +90,183 @@ const StoryView = () => {
     }
   };
 
-  // Liked content filter handler
   const handleLikedFilter = () => {
     setShowLikedOnly(!showLikedOnly);
-    
-    // Reset loading states
     setLoadingStories(true);
     setLoadingFriends(true);
 
-    // Fetch liked content
     if (!showLikedOnly) {
       fetchStories(true);
       fetchFriends(true);
     } else {
-      // Revert to original content
       fetchStories();
       fetchFriends();
     }
   };
 
-  // Initial data fetch
+  const openStory = (story: Story, index: number) => {
+    setActiveStory(story);
+    setStoryIndex(index);
+  };
+
+  const closeStory = () => {
+    setActiveStory(null);
+  };
+
+  const nextStory = () => {
+    if (storyIndex < stories.length - 1) {
+      setStoryIndex(storyIndex + 1);
+      setActiveStory(stories[storyIndex + 1]);
+    } else {
+      closeStory();
+    }
+  };
+
+  const previousStory = () => {
+    if (storyIndex > 0) {
+      setStoryIndex(storyIndex - 1);
+      setActiveStory(stories[storyIndex - 1]);
+    }
+  };
+
   useEffect(() => {
     fetchStories();
     fetchFriends();
   }, []);
 
   return (
-    <div className={styles.storyContainer}>
-      {/* Liked Content Filter Button with Heart */}
-      <div className={`${styles.filterContainer} flex items-center justify-end p-4`}>
+    <div className="min-h-screen bg-gray-900 text-white p-4">
+      {/* Filter Button */}
+      <div className="flex justify-end mb-6">
         <button 
-          onClick={handleLikedFilter} 
+          onClick={handleLikedFilter}
           className={`
-            flex items-center justify-center 
-            px-4 py-2 
-            bg-white 
-            border-2 
-            ${showLikedOnly ? 'border-red-500 text-red-500' : 'border-gray-300 text-gray-500'}
-            rounded-full 
-            hover:bg-gray-50 
-            transition-all 
-            duration-300 
-            shadow-sm
-            space-x-2
+            flex items-center gap-2 px-4 py-2 rounded-full
+            ${showLikedOnly ? 'bg-red-500' : 'bg-gray-800'}
+            hover:opacity-90 transition-all duration-300
           `}
         >
-          <Heart 
-            className={`
-              ${showLikedOnly ? 'fill-red-500 text-red-500' : 'text-gray-400'}
-              transition-all 
-              duration-300
-            `}
-            size={20}
-          />
+          <Heart className={showLikedOnly ? 'fill-white' : ''} size={20} />
           <span>{showLikedOnly ? 'Show All' : 'Liked Only'}</span>
         </button>
       </div>
 
-      {/* Friends' List - Horizontally Scrolling */}
-      <h2>Friends</h2>
-      <div className={styles.friendsScrollContainer}>
-        {loadingFriends ? (
-          <p>Loading friends...</p>
-        ) : friends.length === 0 ? (
-          <p>No friends available</p>
-        ) : (
-          friends.map((friend) => (
-            <div key={friend.user_id} className={styles.friendItem}>
-              <div className={styles.friendAvatarContainer}>
-                <img
-                  src={friend.avatar}
-                  alt={`${friend.name}'s avatar`}
-                  className={styles.friendAvatar}
-                />
+      {/* Friends List */}
+      <div className="mb-8">
+        <h2 className="text-xl font-bold mb-4">Friends</h2>
+        <div className="flex gap-6 overflow-x-auto pb-4 px-2">
+          {loadingFriends ? (
+            <div className="text-gray-400">Loading friends...</div>
+          ) : friends.length === 0 ? (
+            <div className="text-gray-400">No friends available</div>
+          ) : (
+            friends.map((friend) => (
+              <div key={friend.user_id} className="flex flex-col items-center min-w-[80px] flex-shrink-0">
+                <div className="relative w-20 h-20 mb-2">
+                  {friend.has_story === 1 ? (
+                    <div className="absolute inset-0 rounded-full" 
+                         style={{
+                           background: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)',
+                           padding: '2px',
+                         }}>
+                      <div className="bg-gray-900 w-full h-full rounded-full p-[2px]">
+                        <img
+                          src={friend.avatar}
+                          alt={friend.name}
+                          className="w-full h-full rounded-full object-cover"
+                        />
+                      </div>
+                      {/* Story Count Badge */}
+                      <div className="absolute -top-1 -right-1 bg-pink-500 rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold shadow-lg">
+                        {friend.story_count}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="w-full h-full rounded-full border-2 border-gray-700 overflow-hidden">
+                      <img
+                        src={friend.avatar}
+                        alt={friend.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                </div>
+                <span className="text-sm text-center w-full truncate px-1">{friend.name}</span>
               </div>
-              <p className={styles.friendName}>{friend.name}</p>
-            </div>
-          ))
-        )}
+            ))
+          )}
+        </div>
       </div>
 
-      {/* Stories Section */}
-      <h2>Stories</h2>
-      <div className={styles.storiesList}>
-        {loadingStories ? (
-          <p>Loading stories...</p>
-        ) : stories.length === 0 ? (
-          <p>No stories available</p>
-        ) : (
-          <div className={styles.storiesGrid}>
-            {stories.map((story) => (
-              <div key={story.story_id} className={styles.storyItem}>
-                <div className={styles.storyImageContainer}>
-                  <img
-                    src={story.media_url}
-                    alt="story media"
-                    className={styles.storyImage}
-                  />
-                </div>
-                <p>{`Posted by User: ${story.user_id}`}</p>
-                <p>{new Date(story.post_at).toLocaleString()}</p>
+      {/* Stories Grid */}
+      <div>
+        <h2 className="text-xl font-bold mb-4">Stories</h2>
+        <div className="grid grid-cols-3 gap-4">
+          {loadingStories ? (
+            <div className="text-gray-400">Loading stories...</div>
+          ) : stories.length === 0 ? (
+            <div className="text-gray-400">No stories available</div>
+          ) : (
+            stories.map((story, index) => (
+              <div 
+                key={story.story_id}
+                onClick={() => openStory(story, index)}
+                className="cursor-pointer relative aspect-square"
+              >
+                <img
+                  src={story.media_url}
+                  alt={`Story by ${story.user_id}`}
+                  className="w-full h-full object-cover rounded-lg"
+                />
               </div>
-            ))}
-          </div>
-        )}
+            ))
+          )}
+        </div>
       </div>
+
+      {/* Full Screen Story View */}
+      {activeStory && (
+        <div className="fixed inset-0 bg-black z-50 flex items-center justify-center">
+          <button 
+            onClick={closeStory}
+            className="absolute top-4 right-4 text-white z-10"
+          >
+            ✕
+          </button>
+          
+          <button
+            onClick={previousStory}
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white"
+            disabled={storyIndex === 0}
+          >
+            <ChevronLeft size={32} className={storyIndex === 0 ? 'opacity-50' : 'opacity-100'} />
+          </button>
+
+          <button
+            onClick={nextStory}
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white"
+            disabled={storyIndex === stories.length - 1}
+          >
+            <ChevronRight size={32} className={storyIndex === stories.length - 1 ? 'opacity-50' : 'opacity-100'} />
+          </button>
+
+          <div className="w-full max-w-2xl aspect-square relative">
+            <img
+              src={activeStory.media_url}
+              alt={`Story by ${activeStory.user_id}`}
+              className="w-full h-full object-contain"
+            />
+            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
+              <div className="text-white">
+                <p className="font-bold">{activeStory.user_id}</p>
+                <p className="text-sm opacity-80">
+                  {new Date(activeStory.post_at).toLocaleString()}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
