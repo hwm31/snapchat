@@ -6,7 +6,7 @@ export default function Footer() {
       { name: '김범수', href: 'https://snapchat.com/t/KqvQPQ1S' },
       { name: '손인화', href: 'https://snapchat.com/t/REoNNXQ9' },
       { name: '신채운', href: 'https://snapchat.com/t/TsIjwQ4x' },
-      { name: '이희승', href: '/team/lee-heeseung' },
+      { name: '이희승', href: 'https://www.snapchat.com/add/heeseung1102?share_id=WfyPBWOOaMg&locale=ko-KR' },
     ],
     community: [
       { name: 'GITHUB(REACT)', href: 'https://github.com/hwm31/snapchat' },
