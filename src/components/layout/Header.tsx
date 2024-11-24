@@ -26,7 +26,7 @@ export default function Header() {
               href="/register"
               className="bg-yellow-400 text-black hover:bg-yellow-300 px-4 py-1.5 rounded-full text-sm font-medium transition-colors"
             >
-              Register
+              Sign up
             </Link>
           </div>
         </div>

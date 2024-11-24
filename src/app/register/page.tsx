@@ -10,18 +10,18 @@ const RegisterPage: React.FC = () => {
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!email || !password) {
-      alert("이메일과 비밀번호를 입력하세요.");
+      alert("Please enter your email and password.");
       return;
     }
 
     setLoading(true); // 로딩 시작
     try {
       // API 요청 생략 (테스트용)
-      alert("회원가입 성공!"); 
+      alert("Sign-up successful!"); 
       window.location.href = "/after-login-page"; // 회원가입 후 친구 관리 페이지로 이동
     } catch (error) {
-      console.error("회원가입 중 오류:", error);
-      alert("회원가입 실패!");
+      console.error("Sign-up error:", error);
+      alert("Sign-up failed!");
     } finally {
       setLoading(false); // 로딩 종료
     }
@@ -29,7 +29,7 @@ const RegisterPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-yellow-50 flex flex-col justify-center items-center">
-      <h1 className="text-4xl font-extrabold text-yellow-600 mb-6">회원가입</h1>
+      <h1 className="text-4xl font-extrabold text-yellow-600 mb-6">Sign up</h1>
       <form
         onSubmit={handleRegister}
         className="w-80 bg-white p-6 rounded-lg shadow-md"
@@ -37,7 +37,7 @@ const RegisterPage: React.FC = () => {
         <div className="mb-4">
           <input
             type="email"
-            placeholder="이메일"
+            placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full p-3 border border-yellow-300 rounded-md focus:ring-yellow-400 focus:outline-none"
@@ -46,7 +46,7 @@ const RegisterPage: React.FC = () => {
         <div className="mb-6">
           <input
             type="password"
-            placeholder="비밀번호"
+            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full p-3 border border-yellow-300 rounded-md focus:ring-yellow-400 focus:outline-none"
@@ -61,13 +61,13 @@ const RegisterPage: React.FC = () => {
           }`}
           disabled={loading}
         >
-          {loading ? "회원가입 중..." : "회원가입"}
+          {loading ? "Signing up…" : "Sign up"}
         </button>
       </form>
       <p className="mt-4 text-sm text-gray-700">
-        이미 계정이 있으신가요?{" "}
+      Already have an account?{" "}
         <a href="/login" className="text-yellow-600 hover:underline font-medium">
-          로그인
+          Login
         </a>
       </p>
     </div>

@@ -147,7 +147,7 @@ const StoryView = () => {
           `}
         >
           <Heart className={showLikedOnly ? 'fill-white' : ''} size={20} />
-          <span>{showLikedOnly ? 'Show All' : 'Liked Only'}</span>
+          <span>{showLikedOnly ? 'Show All' : 'Hearted Only'}</span>
         </button>
       </div>
 
