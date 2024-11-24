@@ -11,6 +11,7 @@ type ChatRoom = {
   chat_time: string;
   member_cnt?: number;
   chat_cnt: number;
+  room_photos?: string;
 };
 
 const ChatView = () => {
@@ -22,6 +23,94 @@ const ChatView = () => {
 
   const API_BASE_URL = 'http://127.0.0.1:5000';
   
+  const getImagePaths = (imageNames: string): string[] => {
+    // 쉼표로 구분된 이미지들을 배열로 변환하고 각각의 경로 설정
+    return imageNames.split(',').map(img => {
+      const trimmedImg = img.trim();
+      if (trimmedImg.startsWith('images_')) {
+        return `/image/profile/${trimmedImg}`;
+      } else if (trimmedImg.startsWith('cimages_')) {
+        return `/image/chat/${trimmedImg}`;
+      }
+      return '/api/placeholder/48/48';
+    });
+  };
+
+  // 이미지 그리드 레이아웃 컴포넌트
+  const RoomImages = ({ images }: { images: string[] }) => {
+    const imageCount = images.length;
+    
+    if (imageCount === 0) return null;
+    
+    // 이미지가 1개일 때
+    if (imageCount === 1) {
+      return (
+        <div className="w-full h-full">
+          <img
+            src={images[0]}
+            alt="Room"
+            className="w-full h-full object-cover rounded-full"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = "/api/placeholder/48/48";
+            }}
+          />
+        </div>
+      );
+    }
+    
+    // 이미지가 2개일 때
+    if (imageCount === 2) {
+      return (
+        <div className="w-full h-full grid grid-cols-2 gap-0.5">
+          {images.map((img, idx) => (
+            <img
+              key={idx}
+              src={img}
+              alt={`Room ${idx + 1}`}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = "/api/placeholder/48/48";
+              }}
+            />
+          ))}
+        </div>
+      );
+    }
+    
+    // 이미지가 3개일 때
+    if (imageCount === 3) {
+      return (
+        <div className="w-full h-full grid grid-cols-2 gap-0.5">
+          <img
+            src={images[0]}
+            alt="Room 1"
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = "/api/placeholder/48/48";
+            }}
+          />
+          <div className="grid grid-rows-2 gap-0.5">
+            {images.slice(1).map((img, idx) => (
+              <img
+                key={idx}
+                src={img}
+                alt={`Room ${idx + 2}`}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = "/api/placeholder/48/48";
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      );
+    }
+  };
+
   const axiosInstance = axios.create({
     baseURL: API_BASE_URL,
     headers: {
@@ -39,12 +128,11 @@ const ChatView = () => {
         user_id: 1,
       });
 
-      console.log('API Response:', response.data);
-
       if (!response.data ||
           !Array.isArray(response.data.room_name) ||
           !Array.isArray(response.data.chat) ||
-          !Array.isArray(response.data.chat_time)) {
+          !Array.isArray(response.data.chat_time) ||
+          !Array.isArray(response.data.room_photos)) {
         throw new Error('Invalid response format');
       }
 
@@ -53,7 +141,8 @@ const ChatView = () => {
         response.data.chat.length,
         response.data.chat_time.length,
         response.data.member_cnt?.length || Infinity,
-        response.data.chat_cnt?.length || Infinity
+        response.data.chat_cnt?.length || Infinity,
+        response.data.room_photos?.length || Infinity
       );
 
       const chatData = Array.from({ length: minLength }, (_, index) => ({
@@ -61,7 +150,8 @@ const ChatView = () => {
         chat: response.data.chat[index] || 'No message',
         chat_time: response.data.chat_time[index] || 'Unknown time',
         member_cnt: response.data.member_cnt?.[index],
-        chat_cnt: response.data.chat_cnt?.[index]
+        chat_cnt: response.data.chat_cnt?.[index],
+        room_photos: response.data.room_photos?.[index]
       }));
 
       setChatRooms(chatData);
@@ -129,35 +219,48 @@ const ChatView = () => {
           </div>
         ) : (
           <div className="divide-y divide-gray-800">
-  {chatRooms.map((room, index) => (
-    <div
-      key={index}
-      className="p-4 hover:bg-gray-900/50 transition-colors duration-200 cursor-pointer"
-    >
-      <div className="flex justify-between items-start gap-4">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="font-medium text-white">{room.name}</span>
-            <span className="text-sm text-gray-400">
-              {room.member_cnt ?? 0}
-            </span>
+            {chatRooms.map((room, index) => (
+              <div
+                key={index}
+                className="p-4 hover:bg-gray-900/50 transition-colors duration-200 cursor-pointer"
+              >
+                <div className="flex justify-between items-start gap-4">
+                  <div className="flex gap-3">
+                    <div className="flex-shrink-0 w-12 h-12 rounded-full overflow-hidden">
+                      {room.room_photos ? (
+                        <RoomImages images={getImagePaths(room.room_photos)} />
+                      ) : (
+                        <div className="w-full h-full bg-gray-700 flex items-center justify-center">
+                          <span className="text-gray-400 text-sm">
+                            {room.name.charAt(0)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-medium text-white">{room.name}</span>
+                        <span className="text-sm text-gray-400">
+                          {room.member_cnt ?? 0}
+                        </span>
+                      </div>
+                      <p className="text-gray-400 text-sm truncate">{room.chat}</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <span className="text-xs text-gray-500 whitespace-nowrap">
+                      {room.chat_time}
+                    </span>
+                    {room.chat_cnt && room.chat_cnt > 0 && (
+                      <span className="mt-1 text-sm px-2 py-0.5 bg-red-500/20 rounded-full text-red-500">
+                        {room.chat_cnt}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-          <p className="text-gray-400 text-sm truncate">{room.chat}</p>
-        </div>
-        <div className="flex flex-col items-end">
-          <span className="text-xs text-gray-500 whitespace-nowrap">
-            {room.chat_time}
-          </span>
-          {room.chat_cnt && room.chat_cnt > 0 && (
-            <span className="mt-1 text-sm px-2 py-0.5 bg-red-500/20 rounded-full text-red-500">
-              {room.chat_cnt}
-            </span>
-          )}
-        </div>
-      </div>
-    </div>
-  ))}
-</div>
         )}
       </div>
     </div>
