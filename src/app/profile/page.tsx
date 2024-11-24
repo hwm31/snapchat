@@ -9,7 +9,7 @@ const ProfileScreen: React.FC = () => {
         {/* Profile Info */}
         <div className="flex flex-col items-center">
           <img
-            src="https://via.placeholder.com/150"
+            src="image/profile/images_1.png"
             alt="Profile"
             className="w-24 h-24 rounded-full border-4 border-yellow-500"
           />

@@ -1,41 +1,47 @@
-"use client"; // 클라이언트 컴포넌트임을 명시
+"use client";
 
 import React, { useState } from "react";
-import { signIn } from "next-auth/react"; // GitHub OAuth 로그인 추가
+import { useRouter } from "next/navigation";
 
-const LoginPage: React.FC = () => {
-  const [email, setEmail] = useState<string>(""); // 이메일 상태
-  const [password, setPassword] = useState<string>(""); // 비밀번호 상태
-  const [loading, setLoading] = useState<boolean>(false); // 로딩 상태
+const LoginPage = () => {
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const router = useRouter(); // For page navigation
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!email || !password) {
-      alert("Please enter your email and password.");
-      return;
-    }
+    setLoading(true);
 
-    setLoading(true); // 로딩 시작
     try {
-      // API 요청 생략 (테스트용)
-      alert("Login successful!");
-      window.location.href = "/after-login-page"; // 로그인 성공 후 친구 관리 페이지로 이동
+      const response = await fetch("http://localhost:5000/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user_email: email, password }),
+        credentials: "include", // Send cookies
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        alert(`Welcome, ${data.name}!`);
+        router.push("/after-login-page"); // Navigate after successful login
+      } else {
+        alert(`Login failed: ${data.message}`);
+      }
     } catch (error) {
-      console.error("Login error:", error);
-      alert("Login failed!");
+      console.error("Error during login:", error);
+      alert("An error occurred while communicating with the server.");
     } finally {
-      setLoading(false); // 로딩 종료
+      setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-yellow-50 flex flex-col justify-center items-center">
       <h1 className="text-4xl font-extrabold text-yellow-600 mb-6">Login</h1>
-      {/* 기존 이메일/비밀번호 로그인 폼 */}
-      <form
-        onSubmit={handleLogin}
-        className="w-80 bg-white p-6 rounded-lg shadow-md"
-      >
+      <form onSubmit={handleLogin} className="w-80 bg-white p-6 rounded-lg shadow-md">
         <div className="mb-4">
           <input
             type="email"
@@ -57,23 +63,17 @@ const LoginPage: React.FC = () => {
         <button
           type="submit"
           className={`w-full py-3 rounded-md text-white font-bold transition-all ${
-            loading
-              ? "bg-gray-400"
-              : "bg-yellow-500 hover:bg-yellow-600 active:bg-yellow-700"
+            loading ? "bg-gray-400" : "bg-yellow-500 hover:bg-yellow-600 active:bg-yellow-700"
           }`}
           disabled={loading}
         >
-          {loading ? "Logging in…" : "Login"}
+          {loading ? "Logging in..." : "Login"}
         </button>
       </form>
-
-    
-
-      {/* 회원가입 링크 */}
       <p className="mt-4 text-sm text-gray-700">
-      Don’t have an account?{" "}
+        Don't have an account?{" "}
         <a href="/register" className="text-yellow-600 hover:underline font-medium">
-        Sign up
+          Register
         </a>
       </p>
     </div>
